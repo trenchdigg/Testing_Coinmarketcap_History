@@ -2,66 +2,14 @@
 
 """
 CoinMarketCap USD Price History
-
   Print the CoinMarketCap USD price history for a particular cryptocurrency in CSV format.
 """
 
 import sys
 import re
 import urllib.request
-import argparse
-import datetime
-
-parser = argparse.ArgumentParser()
-
-parser.add_argument("currency",    help="This is the name of the crypto, as is shown on coinmarketcap. For BTC, "
-                                        "for example, type: bitcoin.", type=str)
-parser.add_argument("start_date",  help="Start date from which you wish to retrieve the historical data. For example, "
-                                        "'2017-10-01'.", type=str)
-parser.add_argument("end_date",    help="End date for the historical data retrieval. If you wish to retrieve all the "
-                                        "data then you can give a date in the future. Same format as in start_date "
-                                        "'yyyy-mm-dd'.", type=str)
-parser.add_argument("--dataframe", help="If present, returns a pandas DataFrame.",action='store_true')
-
-def parse_options(args):
-  """
-  Extract parameters from command line.
-  """
-
-  currency   = args.currency.lower()
-  start_date = args.start_date
-  end_date   = args.end_date
-
-  start_date_split = start_date.split('-')
-  end_date_split   = end_date.split('-')
-
-  start_year = int(start_date_split[0])
-  end_year   = int(end_date_split[0])
-
-  # String validation
-  pattern    = re.compile('[2][0][1][0-9]-[0-1][0-9]-[0-3][0-9]')
-  if not re.match(pattern, start_date):
-    raise ValueError('Invalid format for the start_date: ' + start_date + ". Should be of the form: yyyy-mm-dd.")
-  if not re.match(pattern, end_date):
-    raise ValueError('Invalid format for the end_date: '   + end_date   + ". Should be of the form: yyyy-mm-dd.")
-  # Datetime validation for the correctness of the date. Will throw a ValueError if not valid
-  datetime.datetime(start_year,int(start_date_split[1]),int(start_date_split[2]))
-  datetime.datetime(end_year,  int(end_date_split[1]),  int(end_date_split[2]))
-
-  # CoinMarketCap's price data (at least for Bitcoin, presuambly for all others) only goes back to 2013
-  invalid_args =                 start_year < 2013
-  invalid_args = invalid_args or end_year   < 2013
-  invalid_args = invalid_args or end_year   < start_year
-
-  if invalid_args:
-    print('Usage: ' + __file__ + ' <currency> <start_date> <end_date> --dataframe')
-    sys.exit(1)
-
-  start_date = start_date_split[0]+ start_date_split[1] + start_date_split[2]
-  end_date   = end_date_split[0]  + end_date_split[1]   + end_date_split[2]
-
-  return currency, start_date, end_date
-
+import urllib.error
+import pandas as pd
 
 def download_data(currency, start_date, end_date):
   """
@@ -75,7 +23,7 @@ def download_data(currency, start_date, end_date):
     page = urllib.request.urlopen(url,timeout=10)
     if page.getcode() != 200:
       raise Exception('Failed to load page') 
-    html = page.read()
+    html = page.read().decode('utf-8')
     page.close()
 
   except Exception as e:
@@ -94,10 +42,8 @@ def download_data(currency, start_date, end_date):
 def extract_data(html):
   """
   Extract the price history from the HTML.
-
   The CoinMarketCap historical data page has just one HTML table.  This table contains the data we want.
   It's got one header row with the column names.
-
   We need to derive the "average" price for the provided data.
   """
 
@@ -112,7 +58,7 @@ def extract_data(html):
   # strip commas
   rows = []
   for row in raw_rows:
-    row = [ field.translate(None, ',') for field in row ]
+    row = [ field.translate(',') for field in row ]
     rows.append(row)
 
   # calculate averages
@@ -131,10 +77,10 @@ def render_csv_data(header, rows):
   """
   Render the data in CSV format.
   """
-  print(','.join(header))
+  print((','.join(header)))
 
   for row in rows:
-    print(','.join(row))
+    print((','.join(row)))
 
 # --------------------------------------------- Util Methods -----------------------------------------------------------
 
@@ -155,27 +101,7 @@ def rowsFromFile(filename):
         for row in rows:
             print(row)
 
-# ----------------------------------------------------------------------------------------------------------------------
-
-def main(args=None):
-  # assert that args is a list
-  if(args is not None):
-    args = parser.parse_args(args)
-  else:
-    args = parser.parse_args()
+# html = download_data(currency, start_date, end_date)
   
-  currency, start_date, end_date = parse_options(args)
-  
-  html = download_data(currency, start_date, end_date)
-  
-  header, rows = extract_data(html) 
-  
-  if(args.dataframe):
-    import pandas as pd
-    return processDataFrame(pd.DataFrame(data=rows,columns=header))
-  else:  
-    render_csv_data(header, rows)
-
-
-if __name__ == '__main__':
-  df = main()
+#header, rows = extract_data(html) 
+#processDataFrame(pd.DataFrame(data=rows,columns=header))
