@@ -91,8 +91,9 @@ def processDataFrame(df):
   cols = list(df.columns.values)
   cols.remove('Date')
   df.loc[:,'Date'] = pd.to_datetime(df.Date)
-  for col in cols: df.loc[:,col] = df[col].apply(lambda x: float(x))
-  return df.sort_values(by='Date').reset_index(drop=True)
+  for col in cols: 
+    df.loc[:,col] = df[col].apply(lambda x: float(x))
+    return df.sort_values(by='Date').reset_index(drop=True)
 
 def rowsFromFile(filename):
     import csv
