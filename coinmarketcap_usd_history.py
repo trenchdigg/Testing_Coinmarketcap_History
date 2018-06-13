@@ -8,7 +8,7 @@ CoinMarketCap USD Price History
 
 import sys
 import re
-import urllib2
+import urllib.request
 import argparse
 import datetime
 
@@ -72,7 +72,7 @@ def download_data(currency, start_date, end_date):
                                                 + start_date + '&end=' + end_date
 
   try:
-    page = urllib2.urlopen(url,timeout=10)
+    page = urllib.request.urlopen(url,timeout=10)
     if page.getcode() != 200:
       raise Exception('Failed to load page') 
     html = page.read()
