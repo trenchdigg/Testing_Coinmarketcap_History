@@ -27,7 +27,7 @@ Just run in the terminal:
 where
 
 * `currency` is the (case-insensitive) name of the currency / token as displayed on CoinMarketCap, with dashes in place of spaces
-* `start_date` is the beginning of the range to fetch data for. For example, 2017-10-01 (for 2017 October 10th)
+* `start_date` is the beginning of the range to fetch data for. For example, 2017-10-10 (for 2017 October 10th)
 * `end_year` is the end of the range to fetch data for. You may use the date in the future here to obtain the latest data. Format is the same as in the start date.
 
 The above information can also be found by running: `python coinmarketcap_usd_history.py -h` in your terminal.
