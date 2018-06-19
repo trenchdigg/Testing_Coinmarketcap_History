@@ -106,3 +106,8 @@ def rowsFromFile(filename):
   
 #header, rows = extract_data(html) 
 #processDataFrame(pd.DataFrame(data=rows,columns=header))
+#from datetime import date,timedelta
+#current_date=date.today() + timedelta(days=-91)
+#x = date.today().strftime('%Y%m%d')
+#b = current_date.strftime('%Y%m%d')
+
